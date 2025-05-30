@@ -113,7 +113,9 @@ impl<R: Read + Seek> EpubArchive<R> {
     ///
     /// Returns an error if the epub doesn't have the container file.
     pub fn get_container_file(&mut self) -> Result<Vec<u8>, ArchiveError> {
-        let content = self.get_entry("META-INF/container.xml")?;
-        Ok(content)
+        match self.get_entry("META-INF/container.xml") {
+            Err(ArchiveError::Zip(zip::result::ZipError::FileNotFound)) => self.get_entry("META-INF\\container.xml"),
+            res => res,
+        }
     }
 }
